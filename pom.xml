@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>br.gov.lexml</groupId>
   <artifactId>scalaxb-runtime</artifactId>
-  <version>1.7.1.1-SNAPSHOT</version>
+  <version>1.7.1-SNAPSHOT</version>
 
 
     <properties>
@@ -60,7 +60,7 @@
                     <execution>
                         <id>attach-sources</id>
                         <goals>
-                            <goal>jar-no-fork</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
