@@ -43,7 +43,7 @@ object `package` {
     def doFromScope(s: NamespaceBinding): List[(Option[String], String)] = {
       lazy val parentMap: List[(Option[String], String)] = Option[NamespaceBinding](s.parent) map { doFromScope
         } getOrElse { Nil }
-      scalaxb.Helper.nullOrEmpty(s.uri) map { uri => (scalaxb.Helper.nullOrEmpty(s.prefix) -> uri) :: parentMap } getOrElse {parentMap}
+      scalaxb_1_1.Helper.nullOrEmpty(s.uri) map { uri => (scalaxb_1_1.Helper.nullOrEmpty(s.prefix) -> uri) :: parentMap } getOrElse {parentMap}
     }
     doFromScope(scope).reverse
   }
@@ -281,7 +281,7 @@ trait XMLStandardTypes {
 
     def writes(obj: Seq[A], namespace: Option[String], elementLabel: Option[String],
         scope: scala.xml.NamespaceBinding, typeAttribute: Boolean): scala.xml.NodeSeq =
-      Helper.stringToXML((obj map { x => scalaxb.toXML(x, namespace, elementLabel, scope, typeAttribute).text }).mkString(" "),
+      Helper.stringToXML((obj map { x => scalaxb_1_1.toXML(x, namespace, elementLabel, scope, typeAttribute).text }).mkString(" "),
         namespace, elementLabel, scope)
   }
 
@@ -289,7 +289,7 @@ trait XMLStandardTypes {
     def reads(seq: scala.xml.NodeSeq, stack: List[ElemName]): Either[String, DataRecord[A]] = seq match {
       case node: Node =>
         try {
-          Right(DataRecord(Some(node.namespace), Some(node.label), scalaxb.fromXML[A](node)))
+          Right(DataRecord(Some(node.namespace), Some(node.label), scalaxb_1_1.fromXML[A](node)))
         } catch { case e: Exception => Left(e.toString) }
       case _ => Left("scala.xml.Node is required.")
     }
@@ -308,13 +308,13 @@ trait XMLStandardTypes {
   implicit def someXMLWriter[A: CanWriteXML]: CanWriteXML[Some[A]] = new CanWriteXML[Some[A]] {
     def writes(obj: Some[A], namespace: Option[String], elementLabel: Option[String],
         scope: scala.xml.NamespaceBinding, typeAttribute: Boolean): scala.xml.NodeSeq =
-      scalaxb.toXML[A](obj.get, namespace, elementLabel, scope, typeAttribute)
+      scalaxb_1_1.toXML[A](obj.get, namespace, elementLabel, scope, typeAttribute)
   }
 
   implicit def optionXMLWriter[A: CanWriteXML]: CanWriteXML[Option[A]] = new CanWriteXML[Option[A]] {
     def writes(obj: Option[A], namespace: Option[String], elementLabel: Option[String],
         scope: scala.xml.NamespaceBinding, typeAttribute: Boolean): scala.xml.NodeSeq = obj match {
-      case Some(x) => scalaxb.toXML[A](x, namespace, elementLabel, scope, typeAttribute)
+      case Some(x) => scalaxb_1_1.toXML[A](x, namespace, elementLabel, scope, typeAttribute)
       case None    => Helper.nilElem(namespace, elementLabel.get, scope)
     }
   }
@@ -344,12 +344,12 @@ trait XMLStandardTypes {
         DataRecord.toXML(obj, namespace, elementLabel, scope, typeAttribute)
     }
 
-  implicit lazy val __DataRecordMapWriter: CanWriteXML[Map[String, scalaxb.DataRecord[Any]]] =
-    new CanWriteXML[Map[String, scalaxb.DataRecord[Any]]] {
-      def writes(obj: Map[String, scalaxb.DataRecord[Any]], namespace: Option[String], elementLabel: Option[String],
+  implicit lazy val __DataRecordMapWriter: CanWriteXML[Map[String, scalaxb_1_1.DataRecord[Any]]] =
+    new CanWriteXML[Map[String, scalaxb_1_1.DataRecord[Any]]] {
+      def writes(obj: Map[String, scalaxb_1_1.DataRecord[Any]], namespace: Option[String], elementLabel: Option[String],
           scope: scala.xml.NamespaceBinding, typeAttribute: Boolean): scala.xml.NodeSeq =
         obj.valuesIterator.toList flatMap { x =>
-          scalaxb.toXML[DataRecord[Any]](x, x.namespace, x.key, scope, typeAttribute)
+          scalaxb_1_1.toXML[DataRecord[Any]](x, x.namespace, x.key, scope, typeAttribute)
         }
     }
 }
@@ -408,7 +408,7 @@ object DataRecord extends XMLStandardTypes {
 
   def apply[A:CanWriteXML](node: Node, value: A): DataRecord[A] = node match {
     case elem: Elem =>
-      val ns = scalaxb.Helper.nullOrEmpty(elem.scope.getURI(elem.prefix))
+      val ns = scalaxb_1_1.Helper.nullOrEmpty(elem.scope.getURI(elem.prefix))
       val key = Some(elem.label)
       DataRecord(ns, key, value)
     case _ => DataRecord(value)
@@ -437,7 +437,7 @@ object DataRecord extends XMLStandardTypes {
   }
 
   def fromAny(elem: Elem, handleNonDefault: scala.xml.Elem => Option[DataRecord[Any]]): DataRecord[Any] = {
-    val ns = scalaxb.Helper.nullOrEmpty(elem.scope.getURI(elem.prefix))
+    val ns = scalaxb_1_1.Helper.nullOrEmpty(elem.scope.getURI(elem.prefix))
     val key = Some(elem.label)
     val XS = Some(XML_SCHEMA_URI)
 
@@ -507,7 +507,7 @@ object DataRecord extends XMLStandardTypes {
 
   // this is for any.
   def fromNillableAny(elem: Elem): DataRecord[Option[Any]] = {
-    val ns = scalaxb.Helper.nullOrEmpty(elem.scope.getURI(elem.prefix))
+    val ns = scalaxb_1_1.Helper.nullOrEmpty(elem.scope.getURI(elem.prefix))
     val key = Some(elem.label)
     val XS = Some(XML_SCHEMA_URI)
 
@@ -603,7 +603,7 @@ case class ElemName(namespace: Option[String], name: String) {
 object ElemName {
   implicit def apply(node: scala.xml.Node): ElemName = node match {
     case x: scala.xml.Elem =>
-      val elemName = ElemName(scalaxb.Helper.nullOrEmpty(x.scope.getURI(x.prefix)), x.label)
+      val elemName = ElemName(scalaxb_1_1.Helper.nullOrEmpty(x.scope.getURI(x.prefix)), x.label)
       elemName.node = x
       elemName
     case _ =>
@@ -744,7 +744,7 @@ trait CanWriteChildNodes[A] extends CanWriteXML[A] {
   }
 }
 
-trait AttributeGroupFormat[A] extends scalaxb.XMLFormat[A] {
+trait AttributeGroupFormat[A] extends scalaxb_1_1.XMLFormat[A] {
   def writes(__obj: A, __namespace: Option[String], __elementLabel: Option[String],
     __scope: scala.xml.NamespaceBinding, __typeAttribute: Boolean): scala.xml.NodeSeq = sys.error("don't call me.")
 
@@ -922,7 +922,7 @@ object Helper {
     val typeName = (node \ ("@{" + XSI_URL + "}type")).text
     val prefix = if (typeName.contains(':')) Some(typeName.dropRight(typeName.length - typeName.indexOf(':')))
       else None
-    val namespace = scalaxb.Helper.nullOrEmpty(node.scope.getURI(prefix.orNull))
+    val namespace = scalaxb_1_1.Helper.nullOrEmpty(node.scope.getURI(prefix.orNull))
     val value = if (typeName.contains(':')) typeName.drop(typeName.indexOf(':') + 1)
       else typeName
     (namespace, if (value == "") None else Some(value))
@@ -972,7 +972,7 @@ object Helper {
     node match {
       case elem: Elem =>
         withInnerScope(elem.scope, outer) { (innerScope, mapping) =>
-          val newPrefix: String = mapping.get(scalaxb.Helper.nullOrEmpty(elem.prefix)) map {_.orNull} getOrElse {elem.prefix}
+          val newPrefix: String = mapping.get(scalaxb_1_1.Helper.nullOrEmpty(elem.prefix)) map {_.orNull} getOrElse {elem.prefix}
           val newChild = mergeNodeSeqScope(mergeNodeSeqScope(elem.child, outer), innerScope)
           elem.copy(scope = innerScope, prefix = newPrefix, child = newChild)
         }
